@@ -23,7 +23,7 @@ local _assert = assert
 ---@param name string
 ---@param coords table | vector4
 ---@param metadata table
-function CreateExtendedPlayer(playerId, identifier, group, accounts, inventory, weight, job, loadout, name, coords, metadata)
+function CreateExtendedPlayer(playerId, identifier, group, accounts, inventory, weight, job, loadout, name, coords, metadata, ssn)
     local targetOverrides = Config.PlayerFunctionOverride and Core.PlayerFunctionOverrides[Config.PlayerFunctionOverride] or {}
 
     local self = {}
@@ -42,7 +42,9 @@ function CreateExtendedPlayer(playerId, identifier, group, accounts, inventory, 
     self.weight = weight
     self.maxWeight = Config.MaxWeight
     self.metadata = metadata
+    self.ssn = ssn
     self.admin = Core.IsPlayerAdmin(playerId)
+    
     if Config.Multichar then
         self.license = "license" .. identifier:sub(identifier:find(":"), identifier:len())
     else
@@ -57,6 +59,7 @@ function CreateExtendedPlayer(playerId, identifier, group, accounts, inventory, 
     stateBag:set("job", self.job, true)
     stateBag:set("group", self.group, true)
     stateBag:set("name", self.name, true)
+    stateBag:set("ssn", self.ssn, true)
 
     ---@param eventName string
     ---@param ... any
