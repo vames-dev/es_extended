@@ -9,7 +9,11 @@ function StartPayCheck()
 
                 if salary > 0 then
                     if job == "unemployed" then -- unemployed
-                        xPlayer.addAccountMoney("bank", salary, "Welfare Check")
+                        if Config.VMSCityhall then
+                            exports['vms_cityhall']:updatePaychecks(xPlayer.source, salary)
+                        else
+                            xPlayer.addAccountMoney("bank", salary, "Welfare Check")
+                        end
                         TriggerClientEvent("esx:showAdvancedNotification", player, TranslateCap("bank"), TranslateCap("received_paycheck"), TranslateCap("received_help", salary), "CHAR_BANK_MAZE", 9)
                         if Config.LogPaycheck then
                             ESX.DiscordLogFields("Paycheck", "Paycheck - Unemployment Benefits", "green", {
@@ -23,7 +27,11 @@ function StartPayCheck()
                             if society ~= nil then -- verified society
                                 TriggerEvent("esx_addonaccount:getSharedAccount", society.account, function(account)
                                     if account.money >= salary then -- does the society money to pay its employees?
-                                        xPlayer.addAccountMoney("bank", salary, "Paycheck")
+                                        if Config.VMSCityhall then
+                                            exports['vms_cityhall']:updatePaychecks(xPlayer.source, salary)
+                                        else
+                                            xPlayer.addAccountMoney("bank", salary, "Paycheck")
+                                        end
                                         account.removeMoney(salary)
                                         if Config.LogPaycheck then
                                             ESX.DiscordLogFields("Paycheck", "Paycheck - " .. jobLabel, "green", {
@@ -39,7 +47,11 @@ function StartPayCheck()
                                     end
                                 end)
                             else -- not a society
-                                xPlayer.addAccountMoney("bank", salary, "Paycheck")
+                                if Config.VMSCityhall then
+                                    exports['vms_cityhall']:updatePaychecks(xPlayer.source, salary)
+                                else
+                                    xPlayer.addAccountMoney("bank", salary, "Paycheck")
+                                end
                                 if Config.LogPaycheck then
                                     ESX.DiscordLogFields("Paycheck", "Paycheck - " .. jobLabel, "green", {
                                         { name = "Player", value = xPlayer.name, inline = true },
@@ -51,7 +63,11 @@ function StartPayCheck()
                             end
                         end)
                     else -- generic job
-                        xPlayer.addAccountMoney("bank", salary, "Paycheck")
+                        if Config.VMSCityhall then
+                            exports['vms_cityhall']:updatePaychecks(xPlayer.source, salary)
+                        else
+                            xPlayer.addAccountMoney("bank", salary, "Paycheck")
+                        end
                         if Config.LogPaycheck then
                             ESX.DiscordLogFields("Paycheck", "Paycheck - Generic", "green", {
                                 { name = "Player", value = xPlayer.name, inline = true },
