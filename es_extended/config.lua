@@ -49,6 +49,8 @@ Config.EnableDefaultInventory = true -- Display the default Inventory ( F2 )
 Config.EnableWantedLevel = false -- Use Normal GTA wanted Level?
 Config.EnablePVP = true -- Allow Player to player combat
 
+Config.CityHall = GetResourceState("vms_cityhall") ~= "missing"
+
 Config.Multichar = GetResourceState("esx_multicharacter") ~= "missing"
 Config.Identity = true -- Select a character identity data before they have loaded in (this happens by default with multichar)
 Config.DistanceGive = 4.0 -- Max distance when giving items, weapons etc.
