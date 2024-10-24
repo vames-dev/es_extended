@@ -17,6 +17,11 @@ if Config.Multichar or Config.Identity then
     loadPlayer = loadPlayer .. ", `firstname`, `lastname`, `dateofbirth`, `sex`, `height`"
 end
 
+if Config.VMSCityhall then
+    newPlayer = newPlayer .. ', `ssn` = ?'
+    loadPlayer = loadPlayer .. ', `ssn`'
+end
+
 loadPlayer = loadPlayer .. " FROM `users` WHERE identifier = ?"
 
 if Config.Multichar then
@@ -84,7 +89,7 @@ function createESXPlayer(identifier, playerId, data)
         defaultGroup = "admin"
     end
 
-    local parameters = Config.Multichar and { json.encode(accounts), identifier, defaultGroup, data.firstname, data.lastname, data.dateofbirth, data.sex, data.height } or { json.encode(accounts), identifier, defaultGroup }
+    local parameters = Config.Multichar and { json.encode(accounts), identifier, defaultGroup, data.firstname, data.lastname, data.dateofbirth, data.sex, data.height, Config.VMSCityhall and exports['vms_cityhall']:GenerateSSN(data.dateofbirth, data.sex) } or { json.encode(accounts), identifier, defaultGroup }
 
     if Config.StartingInventoryItems then
         table.insert(parameters, json.encode(Config.StartingInventoryItems))
@@ -248,8 +253,18 @@ function loadESXPlayer(identifier, playerId, isNew)
     -- Metadata
     userData.metadata = (result.metadata and result.metadata ~= "") and json.decode(result.metadata) or {}
 
+    -- SSN
+    if Config.VMSCityhall then
+        if result.ssn then
+            userData.ssn = result.ssn
+        else
+            userData.ssn = exports['vms_cityhall']:GenerateSSN(result.dateofbirth, result.sex)
+            MySQL.prepare("UPDATE `users` SET `ssn` = ? WHERE `identifier` = ?", {userData.ssn, identifier})
+        end
+    end
+    
     -- xPlayer Creation
-    local xPlayer = CreateExtendedPlayer(playerId, identifier, userData.group, userData.accounts, userData.inventory, userData.weight, userData.job, userData.loadout, GetPlayerName(playerId), userData.coords, userData.metadata)
+    local xPlayer = CreateExtendedPlayer(playerId, identifier, userData.group, userData.accounts, userData.inventory, userData.weight, userData.job, userData.loadout, GetPlayerName(playerId), userData.coords, userData.metadata, userData.ssn)
     ESX.Players[playerId] = xPlayer
     Core.playersByIdentifier[identifier] = xPlayer
 
@@ -277,6 +292,9 @@ function loadESXPlayer(identifier, playerId, isNew)
             userData.height = result.height
             xPlayer.set("height", result.height)
         end
+        if userData.ssn then
+            xPlayer.set("ssn", userData.ssn)
+        end        
     end
 
     TriggerEvent("esx:playerLoaded", playerId, xPlayer, isNew)
